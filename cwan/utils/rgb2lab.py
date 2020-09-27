@@ -12,8 +12,9 @@ class LAB(nn.Module):
     def __init__(self):
         super().__init__()
     def _check_shape(self,tensor):
+        print(tensor.shape)
         if tensor.shape[0] != 3:
-            raise ValueError("Input array must have (3,height,width)")
+            raise ValueError("Input array must have (batch, 3,height,width)")
 
     def rgb2xyz(self,rgb_tensor,show_results=False):
         """RGB to XYZ color space conversion.
@@ -90,11 +91,13 @@ class LAB(nn.Module):
 
 
     def forward(self,rgb_tensor,show_xyz_results=False,show_lab_results=False):
-        xyz = self.rgb2xyz(rgb_tensor,show_xyz_results)
-        lab = self.xyz2lab(xyz,show_lab_results)
-        l = lab[0:1]
-        ab = lab[1:]
-        return l,ab
+        results = []
+        for i in range(rgb_tensor.shape[0]):
+            xyz = self.rgb2xyz(rgb_tensor[i],show_xyz_results)
+            lab = self.xyz2lab(xyz,show_lab_results)
+            results.append(lab)
+        results = torch.cat(results).reshape(len(results),*results[0].shape)
+        return results
 
 if __name__ == "__main__":
     print("Hello,rgb2lab.py!!!")
@@ -110,6 +113,7 @@ if __name__ == "__main__":
     im = im[height//2-_DEFAULT_SIZE//2:height//2+_DEFAULT_SIZE//2,width//2-_DEFAULT_SIZE//2:width//2+_DEFAULT_SIZE//2]
     lab = LAB()
     rgb_image = torch.from_numpy(im.transpose(2,0,1)).float()
+    rgb_image = rgb_image.unsqueeze(0)
     rgb_image /= 255.
-    l,ab = lab(rgb_image,True,True)
+    lab_output = lab(rgb_image,True,True)
 

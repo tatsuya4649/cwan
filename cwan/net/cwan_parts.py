@@ -5,7 +5,7 @@ this file is tool for cwan network
 """
 import torch
 import torch.nn as nn
-from mem import MemoryBlock,BNReLUConv,ReLUConv
+from .mem import MemoryBlock,BNReLUConv,ReLUConv
 
 
 class CWAN_L(nn.Module):
@@ -34,7 +34,7 @@ class CWAN_L(nn.Module):
         super().__init__()
         self.feature_extractor = ReLUConv(1,32)
         self.k3n1 = nn.Sequential(
-                nn.Conv2d(32,1,(3,3))
+                nn.Conv2d(32,1,(3,3),stride=1,padding=1)
         )
         self.memory_blocks = nn.ModuleList(
                 [MemoryBlock(32,3,i+1) for i in range(3)]
@@ -46,6 +46,7 @@ class CWAN_L(nn.Module):
         ys = [out]
         for memory_block in self.memory_blocks:
             out = memory_block(out,ys)
+        out = self.k3n1(out)
         out = out + residual
         return out
 

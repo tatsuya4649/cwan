@@ -4,4 +4,4 @@ wheel
 torch >= 1.5.0
 torchvision
 opencv-python
-
+matplotlib

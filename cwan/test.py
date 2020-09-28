@@ -19,11 +19,14 @@ parser.add_argument('-x','--xyz',help='show xyz image',default=False)
 parser.add_argument('-l','--lab',help='show lab image',default=False)
 #whether show results image
 parser.add_argument('-r','--results',help='show resutls image',default=True)
+#cwan model state path
+parser.add_argument('-m','--model_state',help='cwan pytorch model state path')
 args = parser.parse_args()
 
 if __name__ == "__main__":
     _DEFAULT_SIZE = 512
     _IMAGE_PATH = "../sample_images/{}".format(args.image)
+    _MODEL_STATE_PATH = "models/{}".format(args.model_state)
     test_image = cv2.imread(_IMAGE_PATH)
     test_image = cv2.cvtColor(test_image,cv2.COLOR_BGR2RGB)
     height = test_image.shape[0]
@@ -37,6 +40,8 @@ if __name__ == "__main__":
     test_tensor = test_tensor.unsqueeze(0)
     #============= end of ready image =============
     cwan = CWAN()
+    if args.model_state is not None:# load pre-trained mode
+        cwan.load_state_dict(torch.load(_MODEL_STATE_PATH))
     cwan_output,_,_ = cwan(test_tensor)
     print(cwan_output.shape)
     if args.results:

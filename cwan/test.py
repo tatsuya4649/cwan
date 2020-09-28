@@ -21,10 +21,12 @@ parser.add_argument('-l','--lab',help='show lab image',default=False)
 parser.add_argument('-r','--results',help='show resutls image',default=True)
 #cwan model state path
 parser.add_argument('-m','--model_state',help='cwan pytorch model state path')
+#test image default size
+parser.add_argument('-s','--default_size',help='test image default size',default=512)
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    _DEFAULT_SIZE = 512
+    _DEFAULT_SIZE = args.default_size
     _IMAGE_PATH = "../sample_images/{}".format(args.image)
     _MODEL_STATE_PATH = "models/{}".format(args.model_state)
     test_image = cv2.imread(_IMAGE_PATH)
@@ -39,11 +41,13 @@ if __name__ == "__main__":
     test_tensor = test_tensor.permute(2,0,1)
     test_tensor = test_tensor.unsqueeze(0)
     #============= end of ready image =============
+    print("now predicting image...")
     cwan = CWAN()
     if args.model_state is not None:# load pre-trained mode
         cwan.load_state_dict(torch.load(_MODEL_STATE_PATH))
     cwan_output,_,_ = cwan(test_tensor)
-    print(cwan_output.shape)
+    #============= lab -> rgb =====================
+    rgb_output = cwan.lab2rgb(cwan_output)
     if args.results:
-        plt.imshow(cwan_output[0].cpu().detach().numpy().transpose(1,2,0))
+        plt.imshow(rgb_output[0].cpu().detach().numpy().transpose(1,2,0))
         plt.show()

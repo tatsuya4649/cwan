@@ -15,6 +15,23 @@ class CWAN(nn.Module):
         self.cwan_l = CWAN_L()
         self.cwan_ab = CWAN_AB()
         self.lab_converter = LAB()
+    def lab2rgb(self,lab):
+        """ LAB tensor to RGB tensor
+
+        Parameter
+        =========
+
+        lab : LAB image tensor
+
+        Returns
+        =========
+
+        rgb : RGB image tensor
+
+        """
+        rgb = self.lab_converter.lab2rgb(lab)
+        return rgb
+
     def forward(self,tensor):
         lab = self.lab_converter(tensor)
         l,ab = lab[:,:1],lab[:,1:]

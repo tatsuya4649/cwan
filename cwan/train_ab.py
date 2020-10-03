@@ -58,11 +58,12 @@ for e in tqdm(range(args.epochs)):
         dataset.plus()
         if dataset.change_now_check:
             long_dic = dataset.long_dataset()
+            long_attention_map = data.long_attention_map_dataset()
         short_imageid_list,short_list = dataset.dataset_tensor()
         for i in range(_ONE_FILE_SIZE/_BATCH):
-            patch_tensor = short_list[i*_BATCH:(i+1)*_BATCH]
-            long_data = torch.rand(1,3,64,64)
-            long_attention_map = torch.rand(1,2,64,64)
+            patch_tensor = Dataset.array_to_tensor(short_list[i*_BATCH:(i+1)*_BATCH])
+            patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
+            long_data,long_attention_map = Dataset.long_data_search(long_dic,patch_tensor_imageid,long_attention_map)
             long_binary_points,long_attention_points = to_attention_points(long_attention_map)
             ab_long = lab(long_data)[:,1:3,:,:]
             _,attention_map,attentnion_points,_,ab_output = cwan(patch_tensor)

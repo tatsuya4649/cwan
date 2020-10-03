@@ -22,11 +22,12 @@ parser.add_argument('-b','--batch_size',help='batch size',default=16)
 parser.add_argument('-wd','--weight_decay',default=0.05)
 parser.add_argument('-mp','--model_path',default="models/")
 
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 args = parser.parse_args()
 cwan = CWAN()
-cwan.train()
+cwan.train().to(device)
 lab = LAB()
-lab.eval()
+lab.eval().to(device)
 
 optimizer = torch.optim.Adam([{'params':cwan.cwan_l.parameters()}],lr=args.learning_rate,weight_decay=args.weight_decay)
 loss_func = nn.L1Loss()
@@ -51,6 +52,7 @@ for e in tqdm(range(args.epochs)):
         short_imageid_list,short_list = dataset.dataset_tensor()
         for i in range(_ONE_FILE_SIZE/_BATCH):#batch every time
             patch_tensor = short_list[i*_BATCH:(i+1)*_BATCH]
+            patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
             long_data = torch.randint(1,3,64,64)
             lab_long = lab(long_data)[:,:1,:,:]
             _,_,_,l_output,_ = cwan(patch_tensor)

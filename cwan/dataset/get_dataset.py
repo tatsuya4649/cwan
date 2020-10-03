@@ -154,4 +154,3 @@ class Dataset:
 
 if __name__ == "__main__":
     print("Hello,{}".format(__file__))
-    dataset_tensor(150,batch_size=16,size=32)

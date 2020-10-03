@@ -45,7 +45,7 @@ if __name__ == "__main__":
     cwan = CWAN()
     if args.model_state is not None:# load pre-trained mode
         cwan.load_state_dict(torch.load(_MODEL_STATE_PATH))
-    cwan_output,_,_ = cwan(test_tensor)
+    cwan_output,_,_,_,_ = cwan(test_tensor)
     #============= lab -> rgb =====================
     rgb_output = cwan.lab2rgb(cwan_output)
     if args.results:

@@ -41,12 +41,12 @@ class CWAN(nn.Module):
         generated_image[:,0] = l_output[:,0]
         generated_image[:,1] = ab_output[:,0]
         generated_image[:,2] = ab_output[:,1]
-        return generated_image,attention_map,attention_points
+        return generated_image,attention_map,attention_points,l_output,ab_output
 
 
 if __name__ == "__main__":
     cwan = CWAN()
     rand = torch.rand(1,3,512,512)
-    cwan_output,attention_map,attention_points = cwan(rand)
+    cwan_output,attention_map,attention_points,_,_ = cwan(rand)
     print(cwan_output.shape)
 

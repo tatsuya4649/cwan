@@ -16,7 +16,8 @@ _SONY_long_path = "Sony/long/"
 _SONY_short_path = "Sony/short/"
 _FUJI_long_path = "Fuji/long/"
 _FUJI_short_path = "Fuji/short/"
-
+_32 = "32/"
+_64 = "64/"
 
 class Dataset:
     """
@@ -36,6 +37,9 @@ class Dataset:
             self._endover = int(_SONY_64/self._batch_size) + int(_FUJI_64/self._batch_size)
         else:
             self._endover = int(_SONY_32/self._batch_size) + int(_FUJI_32/self._batch_size)
+        sony = _SONY_64 / _ONE_FILE_SIZE if self._size==64 else _SONY_32 / _ONE_FILE_SIZE
+        fuji = _FUJI_64 / _ONE_FILE_SIZE if self._size==64 else _FUJI_32 / _ONE_FILE_SIZE
+        path_32_64 = _64 if self._size == 64 else _32
     def plus(self):
         self.count += 1
     @property
@@ -58,9 +62,7 @@ class Dataset:
         """
         count > sony check
         """
-        sony = _SONY_64 / _ONE_FILE_SIZE if self.size==64 else _SONY_32 / _ONE_FILE_SIZE
-        fuji = _FUJI_64 / _ONE_FILE_SIZE if self.size==64 else _FUJI_32 / _ONE_FILE_SIZE
-        a = True if self.count > sony else False
+        a = True if self.count > self.sony else False
         b = self.switch
         return a and b
     def long_dataset(self):
@@ -101,9 +103,7 @@ class Dataset:
         """
         count > sony check
         """
-        sony = _SONY_64 / _ONE_FILE_SIZE if size==64 else _SONY_32 / _ONE_FILE_SIZE
-        fuji = _FUJI_64 / _ONE_FILE_SIZE if size==64 else _FUJI_32 / _ONE_FILE_SIZE
-        return True if count > sony else False
+        return True if count > self.sony else False
 
     @classmethod
     def dataset_tensor(self,count,batch_size=16,size=64):
@@ -112,18 +112,19 @@ class Dataset:
         """
         sony = _SONY_64 / _ONE_FILE_SIZE if size==64 else _SONY_32 / _ONE_FILE_SIZE
         fuji = _FUJI_64 / _ONE_FILE_SIZE if size==64 else _FUJI_32 / _ONE_FILE_SIZE
+        path_32_64 = _64 if size == 64 else _32
         if count < sony:
             file_name_number = _ONE_FILE_SIZE * count
             #path
-            short_imageid_list_path = _SONY_short_path + "imageid/" + "short_imageid_list_{}_{}.pickle".format(size,file_name_number)
-            short_list_path = _SONY_short_path + "image/" + "short_list_{}_{}.pickle".format(size,file_name_number)
+            short_imageid_list_path = _SONY_short_path + path_32_64  + "imageid/" + "short_imageid_list_{}_{}.pickle".format(size,file_name_number)
+            short_list_path = _SONY_short_path + path_32_64 + "image/" + "short_list_{}_{}.pickle".format(size,file_name_number)
             print(short_imageid_list_path)
             print(short_list_path)
         else:
             file_name_number = int(_ONE_FILE_SIZE * (count - sony))
             #path
-            short_imageid_list_path = _FUJI_short_path + "imageid/" + "short_imageid_list_{}_{}.pickle".format(size,file_name_number)
-            short_list_path = _FUJI_short_path + "image/" + "short_list_{}_{}.pickle".format(size,file_name_number)
+            short_imageid_list_path = _FUJI_short_path + path_32_64 + "imageid/" + "short_imageid_list_{}_{}.pickle".format(size,file_name_number)
+            short_list_path = _FUJI_short_path + path_32_64 + "image/" + "short_list_{}_{}.pickle".format(size,file_name_number)
             print(short_imageid_list_path)
             print(short_list_path)
         short_imageid_list = Dataset.get_tensor_list(short_imageid_list_path)
@@ -134,20 +135,18 @@ class Dataset:
         """
         return short image_list and short imageid_list from dataset
         """
-        sony = _SONY_64 / _ONE_FILE_SIZE if self.size==64 else _SONY_32 / _ONE_FILE_SIZE
-        fuji = _FUJI_64 / _ONE_FILE_SIZE if self.size==64 else _FUJI_32 / _ONE_FILE_SIZE
-        if self.count < sony:
+        if self.count < self.sony:
             file_name_number = _ONE_FILE_SIZE * self.count
             #path
-            short_imageid_list_path = _SONY_short_path + "imageid/" + "short_imageid_list_{}_{}.pickle".format(self.size,file_name_number)
-            short_list_path = _SONY_short_path + "image/" + "short_list_{}_{}.pickle".format(self.size,file_name_number)
+            short_imageid_list_path = _SONY_short_path + self.path_32_64 + "imageid/" + "short_imageid_list_{}_{}.pickle".format(self.size,file_name_number)
+            short_list_path = _SONY_short_path + self.path_32_64 + "image/" + "short_list_{}_{}.pickle".format(self.size,file_name_number)
             print(short_imageid_list_path)
             print(short_list_path)
         else:
-            file_name_number = int(_ONE_FILE_SIZE * (self.count - sony))
+            file_name_number = int(_ONE_FILE_SIZE * (self.count - self.sony))
             #path
-            short_imageid_list_path = _FUJI_short_path + "imageid/" + "short_imageid_list_{}_{}.pickle".format(self.size,file_name_number)
-            short_list_path = _FUJI_short_path + "image/" + "short_list_{}_{}.pickle".format(self.size,file_name_number)
+            short_imageid_list_path = _FUJI_short_path + self.path_32_64 + "imageid/" + "short_imageid_list_{}_{}.pickle".format(self.size,file_name_number)
+            short_list_path = _FUJI_short_path + self.path_32_64 + "image/" + "short_list_{}_{}.pickle".format(self.size,file_name_number)
             print(short_imageid_list_path)
             print(short_list_path)
         short_imageid_list = Dataset.get_tensor_list(short_imageid_list_path)

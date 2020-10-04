@@ -37,9 +37,9 @@ class Dataset:
             self._endover = int(_SONY_64/self._batch_size) + int(_FUJI_64/self._batch_size)
         else:
             self._endover = int(_SONY_32/self._batch_size) + int(_FUJI_32/self._batch_size)
-        sony = _SONY_64 / _ONE_FILE_SIZE if self._size==64 else _SONY_32 / _ONE_FILE_SIZE
-        fuji = _FUJI_64 / _ONE_FILE_SIZE if self._size==64 else _FUJI_32 / _ONE_FILE_SIZE
-        path_32_64 = _64 if self._size == 64 else _32
+        self.sony = _SONY_64 / _ONE_FILE_SIZE if self._size==64 else _SONY_32 / _ONE_FILE_SIZE
+        self.fuji = _FUJI_64 / _ONE_FILE_SIZE if self._size==64 else _FUJI_32 / _ONE_FILE_SIZE
+        self.path_32_64 = _64 if self._size == 64 else _32
     def plus(self):
         self.count += 1
     @property
@@ -123,8 +123,8 @@ class Dataset:
         else:
             file_name_number = int(_ONE_FILE_SIZE * (count - sony))
             #path
-            short_imageid_list_path = _FUJI_short_path + path_32_64 + "imageid/" + "short_imageid_list_{}_{}.pickle".format(size,file_name_number)
-            short_list_path = _FUJI_short_path + path_32_64 + "image/" + "short_list_{}_{}.pickle".format(size,file_name_number)
+            short_imageid_list_path = _FUJI_short_path + path_32_64 + "imageid/" + "fshort_imageid_list_{}_{}.pickle".format(size,file_name_number)
+            short_list_path = _FUJI_short_path + path_32_64 + "image/" + "fshort_list_{}_{}.pickle".format(size,file_name_number)
             print(short_imageid_list_path)
             print(short_list_path)
         short_imageid_list = Dataset.get_tensor_list(short_imageid_list_path)
@@ -145,8 +145,8 @@ class Dataset:
         else:
             file_name_number = int(_ONE_FILE_SIZE * (self.count - self.sony))
             #path
-            short_imageid_list_path = _FUJI_short_path + self.path_32_64 + "imageid/" + "short_imageid_list_{}_{}.pickle".format(self.size,file_name_number)
-            short_list_path = _FUJI_short_path + self.path_32_64 + "image/" + "short_list_{}_{}.pickle".format(self.size,file_name_number)
+            short_imageid_list_path = _FUJI_short_path + self.path_32_64 + "imageid/" + "fshort_imageid_list_{}_{}.pickle".format(self.size,file_name_number)
+            short_list_path = _FUJI_short_path + self.path_32_64 + "image/" + "fshort_list_{}_{}.pickle".format(self.size,file_name_number)
             print(short_imageid_list_path)
             print(short_list_path)
         short_imageid_list = Dataset.get_tensor_list(short_imageid_list_path)

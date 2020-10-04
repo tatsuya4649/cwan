@@ -1,3 +1,4 @@
+#!/bin/bash
 #setting pip and making virtual python environments
 #and python libraries install
 

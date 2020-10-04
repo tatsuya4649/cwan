@@ -26,6 +26,7 @@ class LAB(nn.Module):
              '10': (0.9441713925645873, 1, 1.2064272211720228)},
      "E": {'2': (1.0, 1.0, 1.0),
            '10': (1.0, 1.0, 1.0)}}
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     def _get_xyz_coords(self,illuminant,observer):
         """ Get the XYZ coordinates from illuminant and observer
@@ -68,7 +69,7 @@ class LAB(nn.Module):
         xyz_tensor = xyz_tensor.permute(1,2,0)
         xyz_from_rgb = torch.tensor([[0.412453, 0.357580, 0.180423],
                                      [0.212671, 0.715160, 0.072169],
-                                     [0.019334, 0.119193, 0.950227]])
+                                     [0.019334, 0.119193, 0.950227]]).to(self.device)
         rgb_from_xyz = torch.inverse(xyz_from_rgb)
         rgb = torch.matmul(xyz_tensor,torch.t(rgb_from_xyz))
         mask = rgb > 0.0031308
@@ -107,7 +108,7 @@ class LAB(nn.Module):
         xyz[mask] = torch.pow(xyz[mask],3.)
         xyz[~mask] = (xyz[~mask] - 16. / 116.) / 7.787
 
-        xyz_ref_white = self._get_xyz_coords(illuminant,observer)
+        xyz_ref_white = self._get_xyz_coords(illuminant,observer).to(self.device)
         xyz = xyz.permute(1,2,0)
         xyz *= xyz_ref_white
         xyz = xyz.permute(2,0,1)
@@ -170,7 +171,7 @@ class LAB(nn.Module):
         rgb_tensor[~mask] /= 12.92
         xyz_from_rgb = torch.tensor([[0.412453, 0.357580, 0.180423],
                                      [0.212671, 0.715160, 0.072169],
-                                     [0.019334, 0.119193, 0.950227]])
+                                     [0.019334, 0.119193, 0.950227]]).to(self.device)
         xyz = torch.matmul(rgb_tensor,torch.t(xyz_from_rgb))
         if show_results: # show matplotlib
             xyz_numpy = xyz.cpu().detach().numpy()
@@ -202,7 +203,7 @@ class LAB(nn.Module):
         """
         xyz_tensor = xyz_tensor.permute(1,2,0)
 
-        xyz_ref_white = self._get_xyz_coords(illuminant,observer)
+        xyz_ref_white = self._get_xyz_coords(illuminant,observer).to(self.device)
         xyz_tensor = xyz_tensor / xyz_ref_white
 
         mask = xyz_tensor > 0.008856
@@ -243,8 +244,9 @@ if __name__ == "__main__":
     print("image_width -> {}".format(width))
     im = im[height//2-_DEFAULT_SIZE//2:height//2+_DEFAULT_SIZE//2,width//2-_DEFAULT_SIZE//2:width//2+_DEFAULT_SIZE//2]
     lab = LAB()
-    rgb_image = torch.from_numpy(im.transpose(2,0,1)).float()
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    rgb_image = torch.from_numpy(im.transpose(2,0,1)).float().to(device)
     rgb_image = rgb_image.unsqueeze(0)
     rgb_image /= 255.
     lab_output = lab(rgb_image,False,False)
-    rgb_output = lab.lab2rgb(lab_output,True,True)
+    rgb_output = lab.lab2rgb(lab_output,False,False)

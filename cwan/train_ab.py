@@ -28,7 +28,7 @@ parser.add_argument('-tl','--tau_l',help='weights for attention map minimum',def
 parser.add_argument('-tu','--tau_u',help='weights for attention map maximum',default=0.5)
 parser.add_argument('-wd','--weight_decay',default=0.05)
 parser.add_argument('-mp','--model_path',default="models/")
-parser.add_argument('--l_path')
+parser.add_argument('--l_path',default="dataset/cwan_l_200e.pth")
 parser.add_argument('--delta',help='for huber loss',default=0.5)
 args = parser.parse_args()
 
@@ -40,7 +40,7 @@ print('======================')
 
 cwan = CWAN()
 #loading cwan_l parameters
-#cwan.cwan_l.load_state_dict(torch.load(args.l_path))
+cwan.cwan_l.load_state_dict(torch.load(args.l_path))
 cwan.train()
 lab = LAB()
 lab.eval()
@@ -66,7 +66,8 @@ test = Test("dark1.jpg","train_epoch_image/","../search_images/","ab")
 
 for e in tqdm(range(args.epochs)):
     print("now {} epoch".format(e))
-    while(True):
+    print("+++++++++++++++++++++++++")
+    while(not dataset.check_end):
         dataset.plus()
         if dataset.change_now_check:
             print("loading ... long data and long attention map data (teaching data)")
@@ -98,9 +99,7 @@ for e in tqdm(range(args.epochs)):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        if dataset.check_end():
-            dataset.count_reset()
-            break
+    dataset.count_reset()
     #check model generated
     cwan_ab_output = cwan.ab_test(test.im_tensor)
     test.tensor_image(cwan_ab_output)

@@ -38,8 +38,8 @@ class Dataset:
     _endover : Number of calls to end 1 epoch 
     """
     def __init__(self,size=64,batch_size=16):
-        self._switching = True
-        self._count = 114
+        self._switching = False
+        self._count = 0
         self._size = size
         self._batch_size = batch_size
         if self._size == 64:
@@ -117,9 +117,8 @@ class Dataset:
 
     @property
     def over_end_count(self):
-        next_count = self.count + 1#check next count
-        return True if next_count >= self._endover else False
-
+        return True if self.count >= self._endover else False
+    @property
     def check_end(self):
         """
         whether end of 1 epoch

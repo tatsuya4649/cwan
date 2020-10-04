@@ -5,10 +5,12 @@ import pickle
 """
 dataset tensor in one picker file  have 2000 tensor.
 """
-_SONY_64 = 122000 # calling 61times
+#total training calling 346 times by every epoch
+#346 * 2000 => 692000 Tensor
+_SONY_64 = 122000 # calling 61 times
 _SONY_32 = 246000 # calling 123 times
-_FUJI_64 = 240000
-_FUJI_32 = 240000
+_FUJI_64 = 108000 # calling 54 times
+_FUJI_32 = 216000 # calling 108 times
 _ONE_FILE_SIZE = 2000 # number of tensor in a picker file
 _SONY_long_path = "Sony/long/"
 _SONY_short_path = "Sony/short/"

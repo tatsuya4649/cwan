@@ -32,6 +32,18 @@ class CWAN(nn.Module):
         rgb = self.lab_converter.lab2rgb(lab)
         return rgb
 
+    def l_test(self,tensor):
+        lab = self.lab_converter(tensor)
+        l = lab[:,:1]
+        l_output = self.cwan_l(l)
+        return l_output
+
+    def ab_test(self,tensor):
+        lab = self.lab_converter(tensor)
+        ab = lab[:,1]
+        ab_output,_,_ = self.cwan_ab(ab)
+        return ab_output
+
     def forward(self,tensor):
         lab = self.lab_converter(tensor)
         l,ab = lab[:,:1],lab[:,1:]

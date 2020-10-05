@@ -1,6 +1,6 @@
 ### Requirements Libraries with Version ###
 
-argpars
+argparse
 tqdm
 wheel 
 torch >= 1.5.0

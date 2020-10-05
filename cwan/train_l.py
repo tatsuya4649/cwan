@@ -12,6 +12,8 @@ from utils.rgb2lab import LAB
 import glob
 from tqdm import tqdm
 from dataset.get_dataset import *
+from dataset import get_dataset
+from utils.test_tensor import Test
 
 parser = argparse.ArgumentParser(description="train cwan model")
 
@@ -23,6 +25,9 @@ parser.add_argument('-wd','--weight_decay',default=0.05)
 parser.add_argument('-mp','--model_path',default="models/")
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+print('============================')
+print('device is "{}"'.format(device))
+print('============================')
 args = parser.parse_args()
 cwan = CWAN()
 cwan.train().to(device)
@@ -41,19 +46,32 @@ short_image -> imageid and patch of data of RGB(list)
 
 """
 _BATCH = args.batch_size
+_ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(64)
 long_dic = dict()
+
+test = Test("dark1.jpg","train_epoch_image/","../sample_images/","l")
+
 for e in tqdm(range(args.epochs)):
     print("now {} epochs...".format(e))
-    while(True):
+    print("++++++++++++++++++++++++++++")
+    while(not dataset.check_end):
         dataset.plus()#count+=1
         if dataset.change_now_check:
+            print("loading ... long data(teaching data)")
             long_dic = dataset.long_dataset()
+            print("setting longdata => long_dic !!!")
+        print("short_imageid_list and short_list (data) is loading now...")
+        print("----------------------now calculation pickle-----------------------")
         short_imageid_list,short_list = dataset.dataset_tensor()
-        for i in range(_ONE_FILE_SIZE/_BATCH):#batch every time
-            patch_tensor = short_list[i*_BATCH:(i+1)*_BATCH]
+        print("-------------------------------------------------------------------")
+        for i in tqdm(range(int(_ONE_FILE_SIZE/_BATCH))):#batch every time
+            patch_tensor = Dataset.array_to_tensor(short_list[i*_BATCH:(i+1)*_BATCH]).to(device)
+            patch_tensor = (patch_tensor.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
-            long_data = torch.randint(1,3,64,64)
+            long_data = Dataset.search_long_data(long_dic,patch_tensor_imageid).to(device)
+            long_data = (long_data.float()) / 255
+            patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
             lab_long = lab(long_data)[:,:1,:,:]
             _,_,_,l_output,_ = cwan(patch_tensor)
             loss = loss_func(long_data,l_output)
@@ -61,10 +79,12 @@ for e in tqdm(range(args.epochs)):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        if dataset.check_end():
-            break
+    dataset.count_reset()
+    #check model generated
+    cwan_l_output = cwan.l_test(test.im_tensor)
+    test.tensor_image(cwan_l_output)
     #save model parameters
     state_dict = cwan.cwan_l.state_dict()
     for key in state_dict.keys():
         state_dict[key] = state_dict[key].to(torch.device('cpu'))
-    torch.save(state_dict,args.model_path+"cwan_l_{}.pth".format(e))
+    torch.save(state_dict,args.model_path+"cwan_l_{}e.pth".format(e+1))

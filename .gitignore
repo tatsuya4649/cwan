@@ -1,0 +1,9 @@
+#dataset directories
+cwan/dataset/Fuji/long/*
+cwan/dataset/Fuji/short/*
+cwan/dataset/Sony/long/*
+cwan/dataset/Sony/short/*
+
+#default
+*.swp
+__pycache__

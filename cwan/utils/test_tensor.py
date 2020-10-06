@@ -1,6 +1,8 @@
 import torch
 import cv2
 import os
+from matplotlib import pyplot as plt
+import numpy as np
 
 _DEFAULT_SIZE = 512
 
@@ -62,13 +64,22 @@ class Test:
         im_tensor /= 255.
         return im_tensor
 
-    def tensor_image(self,tensor,forward_epoch=True):
+    def tensor_image(self,tensor,loss_list,forward_epoch=True):
         """
         image path => PyTorch Tensor(BxCxHxW)
         """
         #only first batch element
         im_numpy = tensor[0].cpu().detach().numpy().transpose(1,2,0)#HxWxC
-        cv2.imwrite("{}{}_{}e_{}.jpg".format(self.train,self.name,self.epoch,self.l_ab),im_numpy)
+        before_numpy = self.im_tensor[0].cpu().detach().numpy().transpose(1,2,0)#HxWxC
+        fig,ax = plt.subplots(figsize=(30,10),ncols=3)
+        before = ax[0].imshow(before_numpy)
+        after = ax[1].imshow(im_numpy)
+        loss = ax[2].plot(np.array([ x+1 for x in range(len(loss_list))  ]),np.array(loss_list))
+        fig.colorbar(before,ax=ax[0])
+        fig.colorbar(after,ax=ax[1])
+        plt.title("{} model training {} epochs".format(self.l_ab,self.epoch))
+        plt.title("{} model training loss {} epochs".format(self.l_ab,self.epoch))
+        plt.savefig("{}{}_{}e_{}.jpg".format(self.train,self.name,self.epoch,self.l_ab))
         if forward_epoch:
             self.epoch += 1
 

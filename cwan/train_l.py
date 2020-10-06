@@ -14,22 +14,25 @@ from tqdm import tqdm
 from dataset.get_dataset import *
 from dataset import get_dataset
 from utils.test_tensor import Test
+import math
 
 parser = argparse.ArgumentParser(description="train cwan model")
 
 parser.add_argument('-d','--dataset',help='dataset path',default="dataset/")
-parser.add_argument('-lr','--learning_rate',help='learning_rate',default=1e-5)
-parser.add_argument('-e','--epochs',help='number of epochs',default=200)
-parser.add_argument('-b','--batch_size',help='batch size',default=16)
-parser.add_argument('-wd','--weight_decay',default=0.05)
+parser.add_argument('-lr','--learning_rate',help='learning_rate',default=1e-5,type=float)
+parser.add_argument('-e','--epochs',help='number of epochs',default=200,type=int)
+parser.add_argument('-b','--batch_size',help='batch size',default=16,type=int)
+parser.add_argument('-wd','--weight_decay',default=0.05,type=float)
 parser.add_argument('-mp','--model_path',default="models/")
-
+parser.add_argument('--start_epoch',help="start epoch number",default=0,type=int)
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 print('============================')
 print('device is "{}"'.format(device))
 print('============================')
 args = parser.parse_args()
 cwan = CWAN()
+if args.start_epoch != 0:
+    cwan.cwan_l.load_state_dict(torch.load("models/cwan_l_{}e.pth".format(args.start_epoch)))
 cwan.train().to(device)
 lab = LAB()
 lab.eval().to(device)
@@ -49,10 +52,10 @@ _BATCH = args.batch_size
 _ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(64)
 long_dic = dict()
-
+loss_list = list()
 test = Test("dark1.jpg","train_epoch_image/","../sample_images/","l")
 
-for e in tqdm(range(args.epochs)):
+for e in tqdm(range(args.start_epoch,args.epochs)):
     print("now {} epochs...".format(e))
     print("++++++++++++++++++++++++++++")
     while(not dataset.check_end):
@@ -65,7 +68,7 @@ for e in tqdm(range(args.epochs)):
         print("----------------------now calculation pickle-----------------------")
         short_imageid_list,short_list = dataset.dataset_tensor()
         print("-------------------------------------------------------------------")
-        for i in tqdm(range(int(_ONE_FILE_SIZE/_BATCH))):#batch every time
+        for i in tqdm(range(math.ceil(float(_ONE_FILE_SIZE/_BATCH)))):#batch every time
             patch_tensor = Dataset.array_to_tensor(short_list[i*_BATCH:(i+1)*_BATCH]).to(device)
             patch_tensor = (patch_tensor.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
@@ -81,8 +84,9 @@ for e in tqdm(range(args.epochs)):
             optimizer.step()
     dataset.count_reset()
     #check model generated
-    cwan_l_output = cwan.l_test(test.im_tensor)
-    test.tensor_image(cwan_l_output)
+    cwan_l_output = cwan.l_test(test.im_tensor.to(device))
+    loss_list.append(loss)
+    test.tensor_image(cwan_l_output,loss_list)
     #save model parameters
     state_dict = cwan.cwan_l.state_dict()
     for key in state_dict.keys():

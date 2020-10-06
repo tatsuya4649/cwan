@@ -15,7 +15,7 @@ from utils.loss_huber import loss_huber
 from utils.attention_points import to_attention_points
 from dataset.get_dataset import *
 from dataset import get_dataset
-
+import math
 parser = argparse.ArgumentParser(description="train cwan model")
 
 parser.add_argument('-d','--dataset',help='dataset path',default="dataset/")
@@ -78,7 +78,7 @@ for e in tqdm(range(args.epochs)):
         print('------------------- now calculation pickle ----------------')
         short_imageid_list,short_list = dataset.dataset_tensor()
         print('------------------------------------------------------------')
-        for i in tqdm(range(int(_ONE_FILE_SIZE/_BATCH))):
+        for i in tqdm(range(math.ceil(float(_ONE_FILE_SIZE/_BATCH)))):
             patch_tensor = Dataset.array_to_tensor(short_list[i*_BATCH:(i+1)*_BATCH])
             patch_tensor = (patch_tensor.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
@@ -101,7 +101,7 @@ for e in tqdm(range(args.epochs)):
             optimizer.step()
     dataset.count_reset()
     #check model generated
-    cwan_ab_output = cwan.ab_test(test.im_tensor)
+    cwan_ab_output = cwan.ab_test(test.im_tensor.to(device))
     test.tensor_image(cwan_ab_output)
     #save model parameters
     state_dict = cwan.cwan_ab.state_dict()

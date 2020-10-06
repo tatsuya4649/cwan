@@ -123,6 +123,7 @@ class Dataset:
         """
         whether end of 1 epoch
         """
+        print("switching and count state => {},{}".format(self.switching,self.count))
         return True if self.switching and self.over_end_count else False
     def count_reset(self):
         """"
@@ -152,7 +153,7 @@ class Dataset:
         else:
             if count > _END_OF_EPOCHS_32:
                 raise RuntimeError("count over _END_OF_EPOCHS_32...")
-        if count < sony:
+        if count <= sony:
             file_name_number = _ONE_FILE_SIZE * count
             #path
             short_imageid_list_path = _SONY_short_path + path_32_64  + "imageid/" + "short_imageid_list_{}_{}.pickle".format(size,file_name_number)
@@ -176,7 +177,7 @@ class Dataset:
         """
         if self.count > self.endover:#check count over endover
             raise RuntimeError('calling count over _END_OF_EPOCH_{}'.format(self.size))
-        if self.count < self.sony:
+        if self.count <= self.sony:
             file_name_number = _ONE_FILE_SIZE * self.count
             #path
             short_imageid_list_path = _SONY_short_path + self.path_32_64 + "imageid/" + "short_imageid_list_{}_{}.pickle".format(self.size,file_name_number)

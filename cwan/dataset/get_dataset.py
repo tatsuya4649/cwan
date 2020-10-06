@@ -45,11 +45,7 @@ class Dataset:
         if self._size == 64:
             self._endover = int(_SONY_64/_ONE_FILE_SIZE) + int(_FUJI_64/_ONE_FILE_SIZE)
         else:
-<<<<<<< HEAD
-            self._endover = int(_SONY_32/self._batch_size) + int(_FUJI_32/self._batch_size)
-=======
             self._endover = int(_SONY_32/self._ONE_FILE_SIZE) + int(_FUJI_32/_ONE_FILE_SIZE)
->>>>>>> origin/master
         self.sony = _SONY_64 / _ONE_FILE_SIZE if self._size==64 else _SONY_32 / _ONE_FILE_SIZE
         self.fuji = _FUJI_64 / _ONE_FILE_SIZE if self._size==64 else _FUJI_32 / _ONE_FILE_SIZE
         self.path_32_64 = _64 if self._size == 64 else _32

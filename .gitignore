@@ -6,4 +6,5 @@ cwan/dataset/Sony/short/*
 
 #default
 *.swp
+**/*.swp
 __pycache__

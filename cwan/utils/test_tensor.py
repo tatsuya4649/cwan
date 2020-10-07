@@ -7,7 +7,7 @@ import numpy as np
 _DEFAULT_SIZE = 512
 
 class Test:
-    def __init__(self,name,train_images = "../train_epoch_image/",directories = "../../sample_images/",l_ab = "l"):
+    def __init__(self,name,train_images = "../train_epoch_image/",directories = "../../sample_images/",l_ab = "l",start_epoch=0):
         self._directories = directories
         self._train_images = train_images
         if not os.path.exists(self.train):
@@ -15,7 +15,7 @@ class Test:
             os.mkdir(self.train)#make _train_images directories
         self._path = self._directories + name
         self._tensor = self.image_tensor()
-        self._epoch = 1
+        self._epoch = start_epoch + 1
         self._name = name.split('.')[0]
         self._l_ab = l_ab
 

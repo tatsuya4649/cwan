@@ -53,9 +53,10 @@ _ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(64)
 long_dic = dict()
 loss_list = list()
-test = Test("dark1.jpg","train_epoch_image/","../sample_images/","l")
 
-for e in tqdm(range(args.start_epoch,args.epochs)):
+_START_EPOCH = args.start_epoch + 1 if args.start_epoch != 0 else args.start_epoch
+test = Test("dark1.jpg","train_epoch_image/","../sample_images/","l",_START_EPOCH)
+for e in tqdm(range(_START_EPOCH,args.epochs)):
     print("now {} epochs...".format(e))
     print("++++++++++++++++++++++++++++")
     while(not dataset.check_end):
@@ -77,7 +78,7 @@ for e in tqdm(range(args.start_epoch,args.epochs)):
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
             lab_long = lab(long_data)[:,:1,:,:]
             _,_,_,l_output,_ = cwan(patch_tensor)
-            loss = loss_func(long_data,l_output)
+            loss = loss_func(lab_long,l_output)
 
             optimizer.zero_grad()
             loss.backward()
@@ -91,4 +92,4 @@ for e in tqdm(range(args.start_epoch,args.epochs)):
     state_dict = cwan.cwan_l.state_dict()
     for key in state_dict.keys():
         state_dict[key] = state_dict[key].to(torch.device('cpu'))
-    torch.save(state_dict,args.model_path+"cwan_l_{}e.pth".format(e+1))
+    torch.save(state_dict,args.model_path+"cwan_l_{}e.pth".format(e))

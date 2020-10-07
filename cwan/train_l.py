@@ -54,7 +54,7 @@ dataset = Dataset(64)
 long_dic = dict()
 loss_list = list()
 
-_START_EPOCH = args.start_epoch + 1 if args.start_epoch != 0 else args.start_epoch
+_START_EPOCH = args.start_epoch + 1
 test = Test("dark1.jpg","train_epoch_image/","../sample_images/","l",_START_EPOCH)
 for e in tqdm(range(_START_EPOCH,args.epochs)):
     print("now {} epochs...".format(e))

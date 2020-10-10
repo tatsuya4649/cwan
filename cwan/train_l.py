@@ -74,7 +74,7 @@ for e in tqdm(range(_START_EPOCH,args.epochs)):
             patch_tensor = (patch_tensor.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
             long_data = Dataset.search_long_data(long_dic,patch_tensor_imageid).to(device)
-            long_data = (long_data.float()) / 255
+            long_data = (long_data.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
             lab_long = lab(long_data)[:,:1,:,:]
             _,_,_,l_output,_ = cwan(patch_tensor)

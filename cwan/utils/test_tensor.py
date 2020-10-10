@@ -15,7 +15,7 @@ class Test:
             os.mkdir(self.train)#make _train_images directories
         self._path = self._directories + name
         self._tensor = self.image_tensor()
-        self._epoch = start_epoch + 1
+        self._epoch = start_epoch
         self._name = name.split('.')[0]
         self._l_ab = l_ab
 

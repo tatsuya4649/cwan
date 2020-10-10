@@ -45,7 +45,7 @@ class Dataset:
         if self._size == 64:
             self._endover = int(_SONY_64/_ONE_FILE_SIZE) + int(_FUJI_64/_ONE_FILE_SIZE)
         else:
-            self._endover = int(_SONY_32/self._ONE_FILE_SIZE) + int(_FUJI_32/_ONE_FILE_SIZE)
+            self._endover = int(_SONY_32/_ONE_FILE_SIZE) + int(_FUJI_32/_ONE_FILE_SIZE)
         self.sony = _SONY_64 / _ONE_FILE_SIZE if self._size==64 else _SONY_32 / _ONE_FILE_SIZE
         self.fuji = _FUJI_64 / _ONE_FILE_SIZE if self._size==64 else _FUJI_32 / _ONE_FILE_SIZE
         self.path_32_64 = _64 if self._size == 64 else _32
@@ -101,6 +101,17 @@ class Dataset:
             print('~~~~~~~~~~~ "Fuji" Long Data ~~~~~~~~~~~')
             self.switch = True
             return self.get_tensor_list(_FUJI_long_path+"flong_dic_{}.pickle".format(self._size))
+    def long_attention_map_dataset(self):
+        """
+        if 0 return Sony long attention mapdata else Fuji
+        """
+        if self.count == 1:
+            print('~~~~~~~~~~~ "Sony" Long attention map Data ~~~~~~~~~~~~')
+            return self.get_tensor_list(_SONY_long_path+"long_dic_{}_attention_maps.pickle".format(self._size))
+        else:
+            print('~~~~~~~~~~~ "Fuji" Long attention map Data ~~~~~~~~~~~~')
+            return self.get_tensor_list(_FUJI_long_path+"flong_dic_{}_attention_maps.pickle".format(self._size))
+
     @classmethod
     def get_tensor_list(self,path):
         """
@@ -198,8 +209,12 @@ class Dataset:
     def array_to_tensor(self,tensor_in_list):
         return torch.cat(tensor_in_list).reshape(len(tensor_in_list),*tensor_in_list[0].shape)
     @classmethod
+    def array_to_attention(self,tensor_in_list):
+        return torch.cat(tensor_in_list).reshape(len(tensor_in_list),*tensor_in_list[0].shape[1:])
+    @classmethod
     def search_long_data(self,long_dic,imageid_list):
         """
+        CWAN_L training version
         Parameters
         ==========
         long_dic => dic(key:imageid_patch,value:image_tensor)
@@ -211,6 +226,26 @@ class Dataset:
                 raise RuntimeError("{} is not found in long_dic".format(imageid))
             long_tensor.append(long_dic[imageid])
         return self.array_to_tensor(long_tensor)
+    @classmethod
+    def search_long_data(self,long_dic,imageid_list,long_attention_map):
+        """
+        CWAN_AB training version
+        Parameters
+        ==========
+        long_dic => dic(key:imageid_patch,value:image_tensor)
+        long_attention_map => dic(key:imageid_patch,value:image_attention_map)
+        imageid_list => list(imageid_path)
+        """
+        long_tensor = []
+        long_attention_map_list = []
+        for imageid in imageid_list:
+            if long_dic[imageid] is None:
+                raise RuntimeError("{} is not found in long_dic".format(imageid))
+            if long_attention_map[imageid] is None:
+                raise RuntimeError("{} is not found in long_attention_map".format(imageid))
+            long_tensor.append(long_dic[imageid]) #1x2xHxW
+            long_attention_map_list.append(long_attention_map[imageid])
+        return self.array_to_tensor(long_tensor),self.array_to_attention(long_attention_map_list)
 
 if __name__ == "__main__":
     print("Hello,{}".format(__file__))

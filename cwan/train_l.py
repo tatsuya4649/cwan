@@ -15,6 +15,7 @@ from dataset.get_dataset import *
 from dataset import get_dataset
 from utils.test_tensor import Test
 import math
+import pickle
 
 parser = argparse.ArgumentParser(description="train cwan model")
 
@@ -93,3 +94,5 @@ for e in tqdm(range(_START_EPOCH,args.epochs)):
     for key in state_dict.keys():
         state_dict[key] = state_dict[key].to(torch.device('cpu'))
     torch.save(state_dict,args.model_path+"cwan_l_{}e.pth".format(e))
+    with open(args.model_path+"cwan_l_loss.pickle","wb") as file:
+        pickle.dump(loss_list,file)

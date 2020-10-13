@@ -18,6 +18,7 @@ from dataset import get_dataset
 from utils.test_tensor import Test
 import math
 import pickle
+import os
 
 parser = argparse.ArgumentParser(description="train cwan model")
 
@@ -66,25 +67,25 @@ _ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(32)
 long_dic = dict()
 
-if os.path.exists(args.model_path+"cwan_ab_loss.pickle"):
+if os.path.exists(args.model_path+"cwan_ab_loss.pickle") and args.start_epoch != 0:
     with open(args.model_path + "cwan_ab_loss.pickle","rb") as file:
         loss_list = pickle.load(file)
 else:
     loss_list = list()
 
-if os.path.exists(args.model_path+"cwan_ab_loss_map.pickle"):
+if os.path.exists(args.model_path+"cwan_ab_loss_map.pickle") and args.start_epoch != 0:
     with open(args.model_path + "cwan_ab_loss_map.pickle","rb") as file:
         loss_map_list = pickle.load(file)
 else:
     loss_map_list = list()
 
-if os.path.exists(args.model_path+"cwan_ab_loss_huber.pickle"):
+if os.path.exists(args.model_path+"cwan_ab_loss_huber.pickle") and args.start_epoch != 0:
     with open(args.model_path + "cwan_ab_loss_huber.pickle","rb") as file:
         loss_huber_list = pickle.load(file)
 else:
     loss_huber_list = list()
 
-if os.path.exists(args.model_path+"cwan_ab_loss_mse.pickle"):
+if os.path.exists(args.model_path+"cwan_ab_loss_mse.pickle") and args.start_epoch != 0:
     with open(args.model_path + "cwan_ab_loss_mse.pickle","rb") as file:
         loss_mse_list = pickle.load(file)
 else:
@@ -92,7 +93,6 @@ else:
 
 _START_EPOCH = args.start_epoch + 1
 test = Test("dark1.jpg","train_epoch_image/","../sample_images/","ab",_START_EPOCH)
-
 for e in tqdm(range(_START_EPOCH,args.epochs)):
     print("now {} epoch".format(e))
     print("+++++++++++++++++++++++++")

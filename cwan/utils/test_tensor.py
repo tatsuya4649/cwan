@@ -54,6 +54,7 @@ class Test:
         image path => PyTorch Tensor
         """
         im_numpy = cv2.imread(self._path)
+        im_numpy = cv2.cvtColor(im_numpy,cv2.COLOR_BGR2RGB)
         height = im_numpy.shape[0]
         width = im_numpy.shape[1]
         if width > height:

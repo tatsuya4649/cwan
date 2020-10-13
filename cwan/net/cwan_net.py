@@ -45,8 +45,8 @@ class CWAN(nn.Module):
         l_output = self.l_test(tensor)
         test_output = torch.zeros_like(tensor)
         test_output[:,0] = l_output
-        test_output[:,1:3] = ab_output
-        return test_output
+        test_output[:,1:3] = ab_output 
+        return self.lab2rgb(test_output)
 
     def forward(self,tensor):
         lab = self.lab_converter(tensor)

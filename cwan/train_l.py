@@ -16,6 +16,7 @@ from dataset import get_dataset
 from utils.test_tensor import Test
 import math
 import pickle
+import os
 
 parser = argparse.ArgumentParser(description="train cwan model")
 
@@ -53,7 +54,12 @@ _BATCH = args.batch_size
 _ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(64)
 long_dic = dict()
-loss_list = list()
+
+if os.path.exsists(args.model_path+"cwan_l_loss.pickle"):
+    with open(args.model_path+"cwan_l_loss.pickle","rb") as file:
+        loss_list = pickle.load(file)
+else:
+    loss_list = list()
 
 _START_EPOCH = args.start_epoch + 1
 test = Test("dark1.jpg","train_epoch_image/","../sample_images/","l",_START_EPOCH)

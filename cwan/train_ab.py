@@ -24,7 +24,7 @@ parser = argparse.ArgumentParser(description="train cwan model")
 parser.add_argument('-d','--dataset',help='dataset path',default="dataset/")
 parser.add_argument('-lr','--learning_rate',help='learning_rate',default=1e-5)
 parser.add_argument('-e','--epochs',help='number of epochs',default=200)
-parser.add_argument('-b','--batch_size',help='batch size',default=32)
+parser.add_argument('-b','--batch_size',help='batch size',default=128)
 parser.add_argument('-a','--alpha',help='weights for alpha',default=1)
 parser.add_argument('--beta',help='weights for beta',default=20)
 parser.add_argument('-tl','--tau_l',help='weights for attention map minimum',default=0.05)
@@ -65,10 +65,30 @@ _BATCH = args.batch_size
 _ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(32)
 long_dic = dict()
-loss_list = list()
-loss_map_list = list()
-loss_huber_list = list()
-loss_mse_list = list()
+
+if os.path.exists(args.model_path+"cwan_ab_loss.pickle"):
+    with open(args.model_path + "cwan_ab_loss.pickle","rb") as file:
+        loss_list = pickle.load(file)
+else:
+    loss_list = list()
+
+if os.path.exists(args.model_path+"cwan_ab_loss_map.pickle"):
+    with open(args.model_path + "cwan_ab_loss_map.pickle","rb") as file:
+        loss_map_list = pickle.load(file)
+else:
+    loss_map_list = list()
+
+if os.path.exists(args.model_path+"cwan_ab_loss_huber.pickle"):
+    with open(args.model_path + "cwan_ab_loss_huber.pickle","rb") as file:
+        loss_huber_list = pickle.load(file)
+else:
+    loss_huber_list = list()
+
+if os.path.exists(args.model_path+"cwan_ab_loss_mse.pickle"):
+    with open(args.model_path + "cwan_ab_loss_mse.pickle","rb") as file:
+        loss_mse_list = pickle.load(file)
+else:
+    loss_mse_list = list()
 
 _START_EPOCH = args.start_epoch + 1
 test = Test("dark1.jpg","train_epoch_image/","../sample_images/","ab",_START_EPOCH)
@@ -81,7 +101,7 @@ for e in tqdm(range(_START_EPOCH,args.epochs)):
         if dataset.change_now_check:
             print("loading ... long data and long attention map data (teaching data)")
             long_dic = dataset.long_dataset()
-            long_attention_map = dataset.long_attention_map_dataset()
+            long_attention_map_dic = dataset.long_attention_map_dataset()
             print("setting long_data => long_dic and long_attention_map !!!")
         print('short_imageid_list and short_list(data) is loading now...')
         print('------------------- now calculation pickle ----------------')
@@ -91,7 +111,7 @@ for e in tqdm(range(_START_EPOCH,args.epochs)):
             patch_tensor = Dataset.array_to_tensor(short_list[i*_BATCH:(i+1)*_BATCH]).to(device)
             patch_tensor = (patch_tensor.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
-            long_data,long_attention_map = Dataset.search_long_data(long_dic,patch_tensor_imageid,long_attention_map)
+            long_data,long_attention_map = Dataset.search_long_data(long_dic,patch_tensor_imageid,long_attention_map_dic)
             long_data = long_data.to(device)
             long_attention_map = long_attention_map.to(device)
             long_data = (long_data.float()) / 255.
@@ -101,13 +121,12 @@ for e in tqdm(range(_START_EPOCH,args.epochs)):
             #attention_maps loss
             loss_map = loss_func(attention_map,long_attention_map)
             #huber loss
-            loss_huber = loss_huber(ab_output,ab_long)
+            loss_huber_output = loss_huber(ab_output,ab_long)
             #mse loss
             long_binary_points = long_binary_points.unsqueeze(1).to(device)
             long_attention_points = long_attention_points.to(device)
             loss_mse = loss_mse_func(attention_points*long_binary_points ,long_attention_points*long_binary_points)/float(args.beta)
-            print()
-            loss_ab = loss_huber + args.alpha * loss_mse
+            loss_ab = loss_huber_output + args.alpha * loss_mse
             #total loss
             loss = loss_map + loss_ab
             optimizer.zero_grad()

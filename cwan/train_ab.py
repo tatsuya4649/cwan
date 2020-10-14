@@ -19,6 +19,8 @@ from utils.test_tensor import Test
 import math
 import pickle
 import os
+import sys
+sys.path.append('net')
 
 parser = argparse.ArgumentParser(description="train cwan model")
 

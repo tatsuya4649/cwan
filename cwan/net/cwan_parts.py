@@ -5,7 +5,7 @@ this file is tool for cwan network
 """
 import torch
 import torch.nn as nn
-from mem import MemoryBlock,BNReLUConv,ReLUConv
+from net.mem import MemoryBlock,BNReLUConv,ReLUConv
 
 
 class CWAN_L(nn.Module):

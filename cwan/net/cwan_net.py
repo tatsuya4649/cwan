@@ -7,7 +7,7 @@ import sys,os
 
 sys.path.append(os.path.abspath(".."))
 from utils.rgb2lab import LAB
-from .cwan_parts import CWAN_L,CWAN_AB
+from net.cwan_parts import CWAN_L,CWAN_AB
 
 class CWAN(nn.Module):
     def __init__(self):
@@ -44,8 +44,9 @@ class CWAN(nn.Module):
         ab_output,_,_ = self.cwan_ab(ab)
         l_output = self.l_test(tensor)
         test_output = torch.zeros_like(tensor)
-        test_output[:,0] = l_output
-        test_output[:,1:3] = ab_output 
+        test_output[:,0] = l_output[:,0]
+        test_output[:,1] = ab_output[:,0]
+        test_output[:,2] = ab_output[:,1]
         return self.lab2rgb(test_output)
 
     def forward(self,tensor):

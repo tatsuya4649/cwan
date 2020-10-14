@@ -10,6 +10,8 @@ import argparse
 from net.cwan_net import CWAN
 from matplotlib import pyplot as plt
 from utils.rgb2lab import LAB
+import sys
+sys.path.append('net')
 
 parser = argparse.ArgumentParser(description='image -> CWAN model -> LLIE image')
 #image path
@@ -25,7 +27,7 @@ parser.add_argument('-m','--model_state',help='cwan pytorch model state path')
 #test image default size
 parser.add_argument('-s','--default_size',help='test image default size',default=512)
 #can_l model
-parser.add_argument('--cwan_l',help='cwan_l model parameters epoch number',default=1)
+parser.add_argument('--cwan_l',help='cwan_l model parameters epoch number',default=83)
 parser.add_argument('--only_l',help='test only cwan_l',default=False)
 args = parser.parse_args()
 

@@ -5,7 +5,7 @@ this file is tool for cwan network
 """
 import torch
 import torch.nn as nn
-from .mem import MemoryBlock,BNReLUConv,ReLUConv
+from mem import MemoryBlock,BNReLUConv,ReLUConv
 
 
 class CWAN_L(nn.Module):
@@ -82,7 +82,7 @@ class CWAN_AB(nn.Module):
                 nn.ReLU()
         )
         self.k3n32_2 = nn.Sequential(
-                nn.Conv2d(2,32,(3,3),stride=1,padding=1),
+                nn.Conv2d(4,32,(3,3),stride=1,padding=1),
                 nn.ReLU()
         )
 
@@ -94,8 +94,23 @@ class CWAN_AB(nn.Module):
                 nn.Conv2d(128,64,(3,3),stride=1,padding=1),
                 nn.ReLU()
         )
-        self.k3n64_k1n128_k3n64_1 = k3n64_k1n128_k3n64
-        self.k3n64_k1n128_k3n64_2 = k3n64_k1n128_k3n64
+        self.k3n64_k1n128_k3n64_1 = nn.Sequential(
+                nn.Conv2d(32,64,(3,3),stride=1,padding=1),
+                nn.ReLU(),
+                nn.Conv2d(64,128,(1,1),stride=1,padding=0),
+                nn.ReLU(),
+                nn.Conv2d(128,64,(3,3),stride=1,padding=1),
+                nn.ReLU()
+        )
+        self.k3n64_k1n128_k3n64_2 = nn.Sequential(
+                nn.Conv2d(32,64,(3,3),stride=1,padding=1),
+                nn.ReLU(),
+                nn.Conv2d(64,128,(1,1),stride=1,padding=0),
+                nn.ReLU(),
+                nn.Conv2d(128,64,(3,3),stride=1,padding=1),
+                nn.ReLU()
+        )
+ 
         self.k3n64_k1n128_k3n64_3 = nn.Sequential(
                 nn.Conv2d(64,64,(3,3),stride=1,padding=1),
                 nn.ReLU(),
@@ -118,7 +133,9 @@ class CWAN_AB(nn.Module):
         k3n64_k1n128_k3n64_1_output = self.k3n64_k1n128_k3n64_1(k3n32_1_output)
         k3n2_output = self.k3n2(k3n64_k1n128_k3n64_1_output)
         attention_map = k3n2_output
-        k3n32_2_output = self.k3n32_2(residual + k3n2_output)
+        part2 = residual + k3n2_output
+        cat_res_att = torch.cat([residual,k3n2_output],dim=1)
+        k3n32_2_output = self.k3n32_2(cat_res_att)
         k3n64_k1n128_k3n64_2_output = self.k3n64_k1n128_k3n64_2(k3n32_2_output)
         k3n64_k1n128_k3n64_3_output = self.k3n64_k1n128_k3n64_3(k3n64_k1n128_k3n64_2_output)
         k3n4_output = self.k3n4(k3n64_k1n128_k3n64_3_output)
@@ -139,6 +156,6 @@ if __name__ == "__main__":
     print(cwan_l_output.shape)
     print("CWAN_AB models calculate...")
     cwan_ab_output,attention_map,attention_points = cwan_ab(rand_ab)
-    print(cwan_ab_output.shape)
-    print(attention_map.shape)
-    print(attention_points.shape)
+    print('cwan_ab_output.shape => {}'.format(cwan_ab_output.shape))
+    print('attention_map.shape => {}'.format(attention_map.shape))
+    print('attention_points.shape => {}'.format(attention_points.shape))

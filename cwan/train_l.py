@@ -23,7 +23,7 @@ parser = argparse.ArgumentParser(description="train cwan model")
 parser.add_argument('-d','--dataset',help='dataset path',default="dataset/")
 parser.add_argument('-lr','--learning_rate',help='learning_rate',default=1e-5,type=float)
 parser.add_argument('-e','--epochs',help='number of epochs',default=200,type=int)
-parser.add_argument('-b','--batch_size',help='batch size',default=16,type=int)
+parser.add_argument('-b','--batch_size',help='batch size',default=64,type=int)
 parser.add_argument('-wd','--weight_decay',default=0.05,type=float)
 parser.add_argument('-mp','--model_path',default="models/")
 parser.add_argument('--start_epoch',help="start epoch number",default=0,type=int)
@@ -55,7 +55,7 @@ _ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(64)
 long_dic = dict()
 
-if os.path.exsists(args.model_path+"cwan_l_loss.pickle"):
+if os.path.exists(args.model_path+"cwan_l_loss.pickle"):
     with open(args.model_path+"cwan_l_loss.pickle","rb") as file:
         loss_list = pickle.load(file)
 else:
@@ -80,7 +80,7 @@ for e in tqdm(range(_START_EPOCH,args.epochs)):
             patch_tensor = Dataset.array_to_tensor(short_list[i*_BATCH:(i+1)*_BATCH]).to(device)
             patch_tensor = (patch_tensor.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
-            long_data = Dataset.search_long_data(long_dic,patch_tensor_imageid).to(device)
+            long_data = Dataset.search_long_data_l(long_dic,patch_tensor_imageid).to(device)
             long_data = (long_data.float()) / 255.
             patch_tensor_imageid = short_imageid_list[i*_BATCH:(i+1)*_BATCH]
             lab_long = lab(long_data)[:,:1,:,:]

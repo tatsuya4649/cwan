@@ -212,7 +212,7 @@ class Dataset:
     def array_to_attention(self,tensor_in_list):
         return torch.cat(tensor_in_list).reshape(len(tensor_in_list),*tensor_in_list[0].shape[1:])
     @classmethod
-    def search_long_data(self,long_dic,imageid_list):
+    def search_long_data_l(self,long_dic,imageid_list):
         """
         CWAN_L training version
         Parameters

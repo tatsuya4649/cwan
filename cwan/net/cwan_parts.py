@@ -133,7 +133,6 @@ class CWAN_AB(nn.Module):
         k3n64_k1n128_k3n64_1_output = self.k3n64_k1n128_k3n64_1(k3n32_1_output)
         k3n2_output = self.k3n2(k3n64_k1n128_k3n64_1_output)
         attention_map = k3n2_output
-        part2 = residual + k3n2_output
         cat_res_att = torch.cat([residual,k3n2_output],dim=1)
         k3n32_2_output = self.k3n32_2(cat_res_att)
         k3n64_k1n128_k3n64_2_output = self.k3n64_k1n128_k3n64_2(k3n32_2_output)

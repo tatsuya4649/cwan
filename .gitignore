@@ -6,6 +6,7 @@ cwan/dataset/Sony/short/*
 
 #default
 *.sw*
+*.pyc
 cwa/net/pycache/__pycache__/
 __pycache__
 **/__pycache__

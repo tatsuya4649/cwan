@@ -55,7 +55,7 @@ _ONE_FILE_SIZE = get_dataset._ONE_FILE_SIZE
 dataset = Dataset(64)
 long_dic = dict()
 
-if os.path.exists(args.model_path+"cwan_l_loss.pickle"):
+if os.path.exists(args.model_path+"cwan_l_loss.pickle") and args.start_epoch != 0:
     with open(args.model_path+"cwan_l_loss.pickle","rb") as file:
         loss_list = pickle.load(file)
 else:

@@ -21,14 +21,12 @@ class MemoryBlock(nn.Module):
 class ResidualBlock(nn.Module):
     def __init__(self,channels,k=3,s=1,p=1):
         super().__init__()
-        self.relu_conv1 = ReLUConv(channels,channels,k,s,p)
-        self.relu_conv2 = ReLUConv(channels,channels,k,s,p)
-        self.relu_conv3 = ReLUConv(channels,channels,k,s,p)
+        self.relu_conv1 = BNReLUConv(channels,channels,k,s,p)
+        self.relu_conv2 = BNReLUConv(channels,channels,k,s,p)
     def forward(self,x):
         residual = x
         out = self.relu_conv1(x)
         out = self.relu_conv2(out)
-        out = self.relu_conv3(out)
         out = out + residual
         return out
 

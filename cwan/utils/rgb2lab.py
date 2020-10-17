@@ -250,3 +250,5 @@ if __name__ == "__main__":
     rgb_image /= 255.
     lab_output = lab(rgb_image,False,False)
     rgb_output = lab.lab2rgb(lab_output,False,False)
+    plt.imshow(rgb_output[0].cpu().detach().numpy().transpose(1,2,0))
+    plt.show()

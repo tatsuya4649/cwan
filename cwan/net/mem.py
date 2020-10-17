@@ -23,10 +23,12 @@ class ResidualBlock(nn.Module):
         super().__init__()
         self.relu_conv1 = BNReLUConv(channels,channels,k,s,p)
         self.relu_conv2 = BNReLUConv(channels,channels,k,s,p)
+        self.relu_conv3 = BNReLUConv(channels,channels,k,s,p)
     def forward(self,x):
         residual = x
         out = self.relu_conv1(x)
         out = self.relu_conv2(out)
+        out = self.relu_conv3(out)
         out = out + residual
         return out
 

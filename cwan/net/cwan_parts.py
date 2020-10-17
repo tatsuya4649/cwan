@@ -5,6 +5,8 @@ this file is tool for cwan network
 """
 import torch
 import torch.nn as nn
+import sys
+sys.path.append('..')
 from net.mem import MemoryBlock,BNReLUConv,ReLUConv
 
 
